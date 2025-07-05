@@ -28,10 +28,10 @@ namespace backend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // dotnet add package Swashbuckle.AspNetCore --version 5.6.3
+            // dotnet add package Swashbuckle.AspNetCore --version 5.6.3 
             // <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.32" />
             // < PackageReference Include = "Microsoft.EntityFrameworkCore.Tools" Version = "3.1.32" >
-
+            // dotnet --list-sdks dotnet --list-runtimes
             services.AddControllers();
             services.AddHttpClient();
 
