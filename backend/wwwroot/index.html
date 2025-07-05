@@ -365,11 +365,11 @@
 
                     // Add edit and delete buttons in the last column
                     rowHtml += `
-                            <td class="action-buttons">
-                                <button class="edit-btn" onclick="editRow(event)">Edit</button>
-                                <button class="delete-btn" onclick="deleteRow(event)">Delete</button>
-                            </td>
-                        </tr>`;
+                                <td class="action-buttons">
+                                    <button class="edit-btn" onclick="editRow(event)">Edit</button>
+                                    <button class="delete-btn" onclick="deleteRow(event)">Delete</button>
+                                </td>
+                            </tr>`;
 
                     tableBody.append(rowHtml);
                 });
@@ -392,51 +392,51 @@
                 const itemRowId = `items-${order.id}`;
 
                 const orderRow = `
-                    <tr id="${orderRowId}">
-                        <td><strong>${order.id}</strong></td>
-                        <td>
-                            <button class="toggle-btn" onclick="toggleItems('${itemRowId}', this)">+</button>
-                        </td>
-                    </tr>
-                `;
+                        <tr id="${orderRowId}">
+                            <td><strong>${order.id}</strong></td>
+                            <td>
+                                <button class="toggle-btn" onclick="toggleItems('${itemRowId}', this)">+</button>
+                            </td>
+                        </tr>
+                    `;
 
                 let itemRows = `
-                    <tr class="item-row" id="${itemRowId}">
-                        <td colspan="2" class="item-details">
-                            <table class="item-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item ID</th>
-                                        <th>Item Name</th>
-                                        <th>Quantity</th>
-                                        <th>Category</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                `;
+                        <tr class="item-row" id="${itemRowId}">
+                            <td colspan="2" class="item-details">
+                                <table class="item-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Item ID</th>
+                                            <th>Item Name</th>
+                                            <th>Quantity</th>
+                                            <th>Category</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                    `;
 
                 order.items.forEach(item => {
                     itemRows += `
-                                <tr id=ordItem-${item.id}>
-                                    <td>${item.itemId}</td>
-                                    <td>${item.itemName}</td>
-                                    <td>${item.quantity}</td>
-                                    <td>${item.categoryName}</td>
-                                    <td class="action-buttons">
-                                        <button class="edit-btn" onclick="editItem(${item.id})">Edit</button>
-                                        <button class="delete-btn" onclick="deleteItem(${item.id})">Remove</button>
-                                    </td>
-                                </tr>
-                            `;
+                                    <tr id=ordItem-${item.id}>
+                                        <td>${item.itemId}</td>
+                                        <td>${item.itemName}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.categoryName}</td>
+                                        <td class="action-buttons">
+                                            <button class="edit-btn" onclick="editItem(${item.id})">Edit</button>
+                                            <button class="delete-btn" onclick="deleteItem(${item.id})">Remove</button>
+                                        </td>
+                                    </tr>
+                                `;
                 });
 
                 itemRows += `
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                `;
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    `;
 
                 tableBody.append(orderRow + itemRows);
             });
@@ -525,7 +525,80 @@
 
         });
 
+        let currentEditRow = null;
+
+        function editItem(itemId) {
+            const row = $(`#ordItem-${itemId}`);
+            const itemName = row.find('td:eq(1)').text().trim();
+            const quantity = row.find('td:eq(2)').text().trim();
+
+            $('#editItemId').val(itemId);
+            $('#editItemName').val(itemName);
+            $('#editQuantity').val(quantity);
+
+            currentEditRow = row;
+
+            $('#editModal').fadeIn(200);
+        }
+
+        function closeModal() {
+            $('#editModal').fadeOut(200);
+        }
+
+        $('#editForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const itemId = $('#editItemId').val();
+            const updatedName = $('#editItemName').val();
+            const updatedQty = $('#editQuantity').val();
+
+            // Update the DOM (simulated update)
+            if (currentEditRow) {
+                currentEditRow.find('td:eq(1)').text(updatedName);
+                currentEditRow.find('td:eq(2)').text(updatedQty);
+            }
+
+            // TODO: Send to server if needed
+            /*
+            fetch('/api/custom/update-item', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: itemId,
+                    itemName: updatedName,
+                    quantity: parseInt(updatedQty)
+                })
+            }).then(...);
+            */
+
+            closeModal();
+        });
+
     </script>
 
+    <!-- Edit Modal -->
+    <div id="editModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background-color:rgba(0,0,0,0.4); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:white; padding:20px 30px; border-radius:10px; width:400px; box-shadow:0 0 10px rgba(0,0,0,0.2); position:relative;">
+            <h2>Edit Item</h2>
+            <form id="editForm">
+                <input type="hidden" id="editItemId" />
+                <div style="margin-bottom:10px;">
+                    <label for="editItemName">Item Name</label><br />
+                    <input type="text" id="editItemName" style="width:100%; padding:8px;" />
+                </div>
+                <div style="margin-bottom:10px;">
+                    <label for="editQuantity">Quantity</label><br />
+                    <input type="number" id="editQuantity" min="1" style="width:100%; padding:8px;" />
+                </div>
+                <div style="text-align:right;">
+                    <button type="button" onclick="closeModal()" style="background-color:#ccc; color:#333;">Cancel</button>
+                    <button type="submit" style="background-color:#3B82F6;">Save</button>
+                </div>
+            </form>
+            <span onclick="closeModal()" style="position:absolute; top:10px; right:15px; font-size:20px; cursor:pointer;">&times;</span>
+        </div>
+    </div>
 </body>
 </html>

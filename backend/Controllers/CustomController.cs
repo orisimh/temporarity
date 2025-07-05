@@ -125,6 +125,9 @@ namespace backend.Controllers
                         Id = (int)ordDto.itemId
                     }
                 };
+                
+                _db.OrderItem.Update(order);
+
                 await _db.SaveChangesAsync();
 
                 await transaction.CommitAsync();
