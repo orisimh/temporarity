@@ -1,0 +1,531 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Table with JSON Data</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a; /* Deep blue */
+            margin: 20px 0;
+        }
+
+        /* Button Styling */
+        button {
+            /*background: linear-gradient(to right, #3B82F6, #2563EB);*/ /* Blue gradient */
+            color: white;
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        /*button:hover {
+                background: linear-gradient(to right, #2563EB, #1D4ED8);*/ /* Darker blue gradient */
+        /*}*/
+
+        /* Table Styling */
+        .table-container {
+            width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 10px;
+        }
+            /* Rounded corners for top-left and top-right of header */
+            table thead tr:first-child th:first-child {
+                border-top-left-radius: 10px;
+            }
+
+            table thead tr:first-child th:last-child {
+                border-top-right-radius: 10px;
+            }
+
+            /* Rounded corners for bottom-left and bottom-right of last row */
+            table tbody tr:last-child td:first-child {
+                border-bottom-left-radius: 10px;
+            }
+
+            table tbody tr:last-child td:last-child {
+                border-bottom-right-radius: 10px;
+            }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: linear-gradient(to right, #3B82F6, #2563EB); /* Blue gradient */
+            color: white;
+        }
+
+        td {
+            background-color: #f9fafb;
+        }
+
+        /* Action Buttons in Table Rows */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+            .action-buttons button {
+                padding: 6px 12px;
+                font-size: 14px;
+                border-radius: 5px;
+                color: white;
+                border: none;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+        .edit-btn {
+            background-color: #ffa500;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+
+        .edit-btn:hover {
+            background-color: #e68900;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        @media (max-width: 768px) {
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+    <style>
+        .toggle-btn {
+            background-color: #3B82F6;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+            .toggle-btn:hover {
+                background-color: #2563EB;
+            }
+
+        .item-row {
+            background-color: #f0f9ff;
+            display: none;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .item-details {
+            padding: 10px 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .item-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+            .item-table th, .item-table td {
+                padding: 8px;
+                border-bottom: 1px solid #dbeafe;
+            }
+
+            .item-table th {
+                background-color: #60a5fa;
+                color: white;
+            }
+            .item-table .action-buttons {
+                display: flex;
+                gap: 6px;
+                justify-content: center;
+            }
+
+            .item-table .edit-btn {
+                background-color: #3b82f6; /* Blue */
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+            .item-table .delete-btn {
+                background-color: #ef4444; /* Red */
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 4px;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+            .item-table .edit-btn:hover {
+                background-color: #2563eb;
+            }
+
+            .item-table .delete-btn:hover {
+                background-color: #dc2626;
+            }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563EB;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            margin: auto;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+    <h1>Custom List</h1>
+
+    <!--<div style="text-align: center;">
+        <button id="getJsonBtn">Get JSON Data</button>
+    </div>-->
+    <div style="text-align: center; margin: 20px;">
+        <input type="text" id="searchInput" placeholder="Search orders or items..." style="padding: 10px; width: 300px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc;" />
+        <div id="searchStatus" style="text-align:center; margin: 10px; color: #2563EB; display: none;">
+            🔍 Searching...
+        </div>
+        <div id="searchStatus" style="text-align:center; display:none;">
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <div id="tableContainer" class="table-container" style="display: none;">
+        <table id="dataTable">
+            <thead>
+                <tr>
+                    <!-- Dynamic headers will go here -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will go here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+
+        let originalData = []; // store full list for filtering
+        let debounceTimeout = null;
+
+        $(document).ready(function () {
+            //$('#getJsonBtn').on('click', function() {
+            //$.get('/api/custom/get-xml', function(data) {
+            //    $('#tableContainer').show();
+            //    populateTable(data);
+            //}).fail(function() {
+            //    alert("Error fetching JSON data");
+            //});
+
+
+            fetch('/api/custom') // /get-json
+                .then(response => {
+                    // Check if the response is OK (status 200)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+
+                    // Return the response as text (XML is usually returned as text)
+                    // return response.text();
+                    return response.json();
+
+                })
+                .then(data => {
+                    $('#tableContainer').show();
+                    originalData = data;
+                    populateTable1(originalData);
+                });
+            //});
+        });
+
+        function populateTable(data) {
+            let tableHead = $('#dataTable thead tr');
+            let tableBody = $('#dataTable tbody');
+
+            // Clear any existing data in the table
+            tableHead.empty();
+            tableBody.empty();
+
+            var parsedData = typeof data === "string" ? JSON.parse(data) : data;
+            //const parser = new DOMParser();
+            //data = parser.parseFromString(data, "application/xml");
+
+            //const rows = $(data).find('row');
+
+            //for (let i = 0; i < rows.length; i++) {
+            //    const code = rows[i].getElementsByTagName("Code")[0].textContent;
+            //    const description = rows[i].getElementsByTagName("Description")[0].textContent;
+            //    console.log(code, description);
+
+            //    let rowHtml = '<tr>';
+            //    rowHtml += `<td>${code}</td>`;
+            //    rowHtml += `<td>${description}</td>`;
+            //    rowHtml += `
+            //            <td class="action-buttons">
+            //                <button class="edit-btn" onclick="editRow(event)">Edit</button>
+            //                <button class="delete-btn" onclick="deleteRow(event)">Delete</button>
+            //            </td>
+            //        </tr>`;
+
+            //    tableBody.append(rowHtml);
+
+            //}
+
+            // Step 2: Get the 'row' array from the parsed data (this is your array of objects)
+            // data = parsedData.root.row;
+            data = parsedData.Items;
+
+            // Check if data is an array
+            if (data.length > 0) { // Array.isArray(data) &&
+                // Generate table headers dynamically based on the keys of the first object
+                let headers = Object.keys(data[0]);
+                headers.forEach(header => {
+                    tableHead.append(`<th>${header}</th>`);
+                });
+
+                tableHead.append('<th>Actions</th>');
+
+                // Generate table rows dynamically
+                data.forEach(row => {
+                    let rowHtml = '<tr>';
+                    $(rowHtml).data({ id: data.Id })
+                    headers.forEach(header => {
+                        rowHtml += `<td>${row[header]}</td>`;
+                    });
+
+                    // Add edit and delete buttons in the last column
+                    rowHtml += `
+                            <td class="action-buttons">
+                                <button class="edit-btn" onclick="editRow(event)">Edit</button>
+                                <button class="delete-btn" onclick="deleteRow(event)">Delete</button>
+                            </td>
+                        </tr>`;
+
+                    tableBody.append(rowHtml);
+                });
+            } else {
+                tableBody.append('<tr><td colspan="100%" style="text-align:center;">No data available</td></tr>');
+            }
+        }
+
+        function populateTable1(data) {
+            const tableHead = $('#dataTable thead tr');
+            const tableBody = $('#dataTable tbody');
+
+            tableHead.empty();
+            tableBody.empty();
+
+            tableHead.append('<th>Order ID</th><th>Actions</th>');
+
+            data.forEach(order => {
+                const orderRowId = `order-${order.id}`;
+                const itemRowId = `items-${order.id}`;
+
+                const orderRow = `
+                    <tr id="${orderRowId}">
+                        <td><strong>${order.id}</strong></td>
+                        <td>
+                            <button class="toggle-btn" onclick="toggleItems('${itemRowId}', this)">+</button>
+                        </td>
+                    </tr>
+                `;
+
+                let itemRows = `
+                    <tr class="item-row" id="${itemRowId}">
+                        <td colspan="2" class="item-details">
+                            <table class="item-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item ID</th>
+                                        <th>Item Name</th>
+                                        <th>Quantity</th>
+                                        <th>Category</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+
+                order.items.forEach(item => {
+                    itemRows += `
+                                <tr id=ordItem-${item.id}>
+                                    <td>${item.itemId}</td>
+                                    <td>${item.itemName}</td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.categoryName}</td>
+                                    <td class="action-buttons">
+                                        <button class="edit-btn" onclick="editItem(${item.id})">Edit</button>
+                                        <button class="delete-btn" onclick="deleteItem(${item.id})">Remove</button>
+                                    </td>
+                                </tr>
+                            `;
+                });
+
+                itemRows += `
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                `;
+
+                tableBody.append(orderRow + itemRows);
+            });
+        }
+
+        function toggleItems(rowId, btn) {
+            const row = document.getElementById(rowId);
+            if ($(row).is(':visible')) {
+                $(row).slideUp(300);
+                btn.textContent = '+';
+            } else {
+                $(row).slideDown(300);
+                btn.textContent = '–';
+            }
+        }
+
+        function editItem(ordItemId) {
+            // Find the row and get data for editing (you can implement this as needed)
+            const row = $(event.target).closest('tr'); // event.target
+
+            const data = {
+                ordItemId: parseInt($(row).attr("id").split('-')[1]),
+                itemId: 2
+            };
+
+            fetch('/api/custom', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Request failed");
+                    return response.json();
+                })
+                .then(result => {
+                    console.log("Success:", result);
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                });
+
+            // alert("Edit row: " + row.text());
+        }
+
+        function deleteRow(event) {
+            const row = $(event.target).closest('tr');
+            row.remove(); // This just removes the row from the DOM
+            alert("Row deleted.");
+        }
+
+        $('#searchInput').on('input', function () {
+            const query = $(this).val().toLowerCase();
+
+            clearTimeout(debounceTimeout);
+
+            debounceTimeout = setTimeout(() => {
+                const filtered = originalData.filter(order => {
+                    const orderMatch = order.id.toString().includes(query);
+                    const itemMatch = order.items.some(item =>
+                        item.itemName.toLowerCase().includes(query) ||
+                        item.categoryName.toLowerCase().includes(query)
+                    );
+                    return orderMatch || itemMatch;
+                });
+
+                populateTable1(filtered);
+            }, 300); // 300ms debounce
+
+            //debounceTimeout = setTimeout(() => {
+            //    $('#searchStatus').show(); // Show "Searching..."
+
+            //    fetch(`/api/custom?search=${encodeURIComponent(query)}`)
+            //        .then(res => res.json())
+            //        .then(data => {
+            //            $('#searchStatus').hide(); // Hide when response arrives
+            //            populateTable(data);
+            //        })
+            //        .catch(err => {
+            //            $('#searchStatus').text("❌ Error fetching data.");
+            //            console.error(err);
+            //        });
+            //}, 300);
+
+
+        });
+
+    </script>
+
+</body>
+</html>
